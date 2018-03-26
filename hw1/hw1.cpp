@@ -7,9 +7,9 @@
 using namespace std;
 
 #define WORD_MAX_LENGTH 250
-#define isLetter(c) (c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z')
-#define isNumber(c) (c >= '0' && c <= '9')
-#define HASHMOD 21248619
+#define isLetter(c) (((c) >= 'a' && (c) <= 'z') || ((c) >= 'A' && (c) <= 'Z'))
+#define isNumber(c) ((c) >= '0' && (c) <= '9')
+#define HASHMOD 22248619
 
 int characterNum = 0;
 int wordNum = 0;
@@ -35,17 +35,9 @@ phraseList headList_Phrase[HASHMOD];
 wordNode wordTop10[11];
 phraseNode phraseTop10[11];
 
-int isLetterOrNumber(char ch)
-{
-	if (ch >= '0' && ch <= '9' || ch >= 'a' && ch <= 'z' || ch >= 'A' && ch <= 'Z')
-		return 1;
-	else
-		return 0;
-}
-
 void Mystrncpy_lwr(char* &s, char *t, int k)
 {
-
+	//copy and change to lower case
 	int i;
 	for(i = 0; i < k; i++)
 	{	
@@ -58,6 +50,7 @@ void Mystrncpy_lwr(char* &s, char *t, int k)
 
 int ELFhash(char* key) 
 {
+	//Hash function
 	unsigned long h = 0, g;
 	while (*key)
 	{
@@ -71,7 +64,8 @@ int ELFhash(char* key)
 }
 
 int ELFhash_Phrase(char* key1, char* key2)
-{
+{	
+	//Hash function for two words
 	unsigned long h = 0, g;
 	while (*key1)
 	{
@@ -93,7 +87,8 @@ int ELFhash_Phrase(char* key1, char* key2)
 }
 
 wordList CountFrequency(char word[], int lengthPre) 
-{
+{	
+	//Count the frequency of words
 	char* wordPreLow = new char[lengthPre + 1];
 	int h;
 	wordList wNode = NULL, p, q = NULL;
@@ -142,7 +137,15 @@ wordList CountFrequency(char word[], int lengthPre)
 	return wNode;
 }
 
-void CountFrequency_Phrase(wordList word1, wordList word2) {
+void CountFrequency_Phrase(wordList word1, wordList word2) 
+{
+	//Count the frequency of phrases
+
+	if (word1 == NULL || word2 == NULL)
+	{
+		printf("Empty Pointer\n");
+		return;
+	}
 
 	int h;
 	phraseList pNode, p, q = NULL;
@@ -184,33 +187,32 @@ void CountFrequency_Phrase(wordList word1, wordList word2) {
 }
 
 void CountQuantity(const char* fileName) 
-{
+{	
+	//Count the total number of characters/lines/words
 	FILE *fp = NULL;
 	char ch;
-	char lastChar;
 	char tempWord[WORD_MAX_LENGTH];//for preserving word temprorily
 	wordList wNode, wNodePre = NULL;
 	int i = 0, j = 0, flag = 0;
 
 	if ((fp = fopen(fileName, "r")) == NULL) {
 		printf("cannot open this file %s\n", fileName);
-		getchar();
 		exit(0);
 	}
 	
 	while ((ch = fgetc(fp)) != EOF)
 	{	
-		if(ch > 0 && ch <= 127 && ch != '\n')
+		if(ch >= 32 && ch <= 126)
 			characterNum++;
 		if (ch == '\n') 
 		{
 			lineNum++;
-			lastChar = ch;//Preserve last character
 		}
 		if (isLetter(ch) || isNumber(ch))
 		{
+			i = 0;
 			tempWord[i++] = ch;
-			while ((ch = fgetc(fp)) != EOF && (isLetter(ch) || isNumber(ch)))
+			while (((ch = fgetc(fp)) != EOF) && (isLetter(ch) || isNumber(ch)))
 			{
 				characterNum++;
 				tempWord[i++] = ch;
@@ -229,21 +231,16 @@ void CountQuantity(const char* fileName)
 				{
 					CountFrequency_Phrase(wNodePre,wNode);
 				}
-				//strcpy(wNodePre->word, wNode->word);
-				//strcpy(wNodePre->wordPreLow, wNode->wordPreLow);
 				wNodePre = wNode;
 				flag = 1;
 			}
 
-			if (ch > 0 && ch <= 127 && ch != '\n')
+			if (ch >=32 && ch <= 126)
 				characterNum++;
 			if (ch == '\n')
 			{
 				lineNum++;
-				lastChar = ch;//Preserve last character
 			}
-
-			i = 0;
 		}
 		else
 		{
@@ -252,10 +249,29 @@ void CountQuantity(const char* fileName)
 	}
 
 	fclose(fp);
-	if (lastChar != '\n')
-		lineNum++;
+
+	lineNum++;
 	return;
 }
+
+int endwith(char* s, const char *t, int k) {
+	int i;
+	for (i = 0; i < k; i++)
+	{
+		if (s[strlen(s) - k + i] != t[i]) {
+			break;
+		}
+	}
+	if (i == k)
+	{
+		return 1;
+	}
+	else 
+	{
+		return 0;
+	}
+}
+
 void TraverseFolder(string folderPath) 
 {
 	//Traverse a folder using Depth First Search Traversal
@@ -273,8 +289,8 @@ void TraverseFolder(string folderPath)
 	
 	if (Handle == -1L) 
 	{
-		printf("cannot match the folder path\n");
-		exit(0);
+		printf("cannot match the folder path %s\n", filePath.c_str());
+		return;
 	}
 	do 
 	{
@@ -292,7 +308,6 @@ void TraverseFolder(string folderPath)
 		}
 		else
 		{
-			//printf("%s\n", fileInfo.name);
 			string fullName;
 			fullName = folderPath + "\\" + fileInfo.name;
 			CountQuantity(fullName.c_str());
@@ -300,52 +315,28 @@ void TraverseFolder(string folderPath)
 	} while (_findnext(Handle, &fileInfo) == 0);
 
 	_findclose(Handle);
-
 }
 
-int main(int argc, char *argv[]) 
+void Top10WordPhrase()
 {
 	int i, j;
 	wordNode *p;
 	phraseNode *q;
-	_finddata_t fileInfo;
-	long Handle = _findfirst(argv[1], &fileInfo);
 
-	if (Handle != -1L && (fileInfo.attrib & _A_SUBDIR) == 0)
-	{
-		//It's a file name and not a folder path 
-		CountQuantity(argv[1]);
-	}
-	else
-	{	
-		//it's a folder path
-		TraverseFolder(argv[1]);
-	}
-	//char s[] = "D:\\test\\newsample";
-	//CountQuantity(s);
-
-	//TraverseFolder(s);
-	
-	printf("characters: %d\n", characterNum);
-	printf("words: %d\n", wordNum);
-	printf("lines: %d\n", lineNum);
-	
 	for (i = 0; i < HASHMOD; i++)
 	{
 		//find top 10 words
 		if (headList[i] != NULL)
-		{	
+		{
 			p = headList[i];
-			while (p != NULL) 
-			{	
-				//if(p->time >= 80000)
-				//	printf("%s: %d\n", headList[i]->word, headList[i]->time);
+			while (p != NULL)
+			{
 				for (j = 9; j >= 0 && p->time > wordTop10[j].time || ((p->time == wordTop10[j].time) && (strcmp(p->word, wordTop10[j].word) < 0)); j--)
 				{
 					strcpy(wordTop10[j + 1].word, wordTop10[j].word);
 					wordTop10[j + 1].time = wordTop10[j].time;
 				}
-				if (j < 9) 
+				if (j < 9)
 				{
 					strcpy(wordTop10[j + 1].word, p->word);
 					wordTop10[j + 1].time = p->time;
@@ -355,21 +346,16 @@ int main(int argc, char *argv[])
 		}
 	}
 
-	for (i = 0; i <= 9; i++)
-	{
-		printf("%s: %d\n", wordTop10[i].word, wordTop10[i].time);
-	}
-
 	for (i = 0; i < HASHMOD; i++)
 	{
 		//find top 10 phrases
-		
+
 		if (headList_Phrase[i] != NULL)
 		{
 			q = headList_Phrase[i];
 			while (q != NULL)
 			{
-				for (j = 9; j >= 0 && q->time > phraseTop10[j].time || ((q->time == phraseTop10[j].time) && ((strcmp(q->word1->word, phraseTop10[j].word1->word) < 0)|| (strcmp(q->word2->word, phraseTop10[j].word2->word) < 0))); j--)
+				for (j = 9; j >= 0 && q->time > phraseTop10[j].time || ((q->time == phraseTop10[j].time) && ((strcmp(q->word1->word, phraseTop10[j].word1->word) < 0) || (strcmp(q->word2->word, phraseTop10[j].word2->word) < 0))); j--)
 				{
 					phraseTop10[j + 1].word1 = phraseTop10[j].word1;
 					phraseTop10[j + 1].word2 = phraseTop10[j].word2;
@@ -385,12 +371,64 @@ int main(int argc, char *argv[])
 			}
 		}
 	}
+}
+
+int main(int argc, char *argv[]) 
+{
+	int i;
+	_finddata_t fileInfo;
+	long Handle = _findfirst(argv[1], &fileInfo);
+	FILE *fout;
+
+	if (Handle != -1L && (fileInfo.attrib & _A_SUBDIR) == 0)
+	{
+		//It's a file name and not a folder path 
+		CountQuantity(argv[1]);
+	}
+	else
+	{	
+		//it's a folder path
+		TraverseFolder(argv[1]);
+	}
+
+	//char s[] = "D:\\test\\测试集与参考结果\\测试集与参考结果\\newsample";
+	//CountQuantity(s);
+
+	//TraverseFolder(s);
+	Top10WordPhrase();
+
+	if ((fout = fopen("result.txt", "w")) == NULL) {
+		printf("cannot open this file result.txt\n");
+		exit(0);
+	}
+
+	fprintf(fout, "characters: %d\n", characterNum);
+	fprintf(fout, "words: %d\n", wordNum);
+	fprintf(fout, "lines: %d\n", lineNum);
+
+	for (i = 0; i <= 9; i++)
+	{
+		fprintf(fout, "%s: %d\n", wordTop10[i].word, wordTop10[i].time);
+	}
+
+	for (i = 0; i <= 9; i++)
+	{
+		fprintf(fout, "%s %s: %d\n", phraseTop10[i].word1->word, phraseTop10[i].word2->word, phraseTop10[i].time);
+	}
+	
+	/*printf("characters: %d\n", characterNum);
+	printf("words: %d\n", wordNum);
+	printf("lines: %d\n", lineNum);
+	
+	for (i = 0; i <= 9; i++)
+	{
+		printf("%s: %d\n", wordTop10[i].word, wordTop10[i].time);
+	}
 
 	for (i = 0; i <= 9; i++)
 	{
 		printf("%s %s: %d\n", phraseTop10[i].word1->word, phraseTop10[i].word2->word, phraseTop10[i].time);
-	}
-
-	getchar();
+	}*/
+	
 	return 0;
 }
