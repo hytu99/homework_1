@@ -199,8 +199,8 @@ void CountQuantity(const char* fileName)
 		printf("cannot open this file %s\n", fileName);
 		exit(0);
 	}
-	
-	while ((ch = fgetc(fp)) != EOF)
+
+	while ( (ch = fgetc(fp)) != EOF)
 	{	
 		if(ch >= 32 && ch <= 126)
 			characterNum++;
@@ -208,11 +208,12 @@ void CountQuantity(const char* fileName)
 		{
 			lineNum++;
 		}
+
 		if (isLetter(ch) || isNumber(ch))
 		{
 			i = 0;
 			tempWord[i++] = ch;
-			while (((ch = fgetc(fp)) != EOF) && (isLetter(ch) || isNumber(ch)))
+			while ((ch = fgetc(fp)) != EOF && (isLetter(ch) || isNumber(ch)))
 			{
 				characterNum++;
 				tempWord[i++] = ch;
@@ -235,41 +236,24 @@ void CountQuantity(const char* fileName)
 				flag = 1;
 			}
 
-			if (ch >=32 && ch <= 126)
+			if (ch >= 32 && ch <= 126)
 				characterNum++;
 			if (ch == '\n')
 			{
 				lineNum++;
 			}
+			if (ch == EOF)
+			{
+				break;
+			}
 		}
-		else
-		{
-			continue;
-		}	
 	}
 
 	fclose(fp);
 
 	lineNum++;
-	return;
-}
 
-int endwith(char* s, const char *t, int k) {
-	int i;
-	for (i = 0; i < k; i++)
-	{
-		if (s[strlen(s) - k + i] != t[i]) {
-			break;
-		}
-	}
-	if (i == k)
-	{
-		return 1;
-	}
-	else 
-	{
-		return 0;
-	}
+	return;
 }
 
 void TraverseFolder(string folderPath) 
@@ -355,7 +339,7 @@ void Top10WordPhrase()
 			q = headList_Phrase[i];
 			while (q != NULL)
 			{
-				for (j = 9; j >= 0 && q->time > phraseTop10[j].time || ((q->time == phraseTop10[j].time) && ((strcmp(q->word1->word, phraseTop10[j].word1->word) < 0) || (strcmp(q->word2->word, phraseTop10[j].word2->word) < 0))); j--)
+				for (j = 9; j >= 0 && q->time > phraseTop10[j].time; j--)
 				{
 					phraseTop10[j + 1].word1 = phraseTop10[j].word1;
 					phraseTop10[j + 1].word2 = phraseTop10[j].word2;
@@ -428,7 +412,7 @@ int main(int argc, char *argv[])
 	for (i = 0; i <= 9; i++)
 	{
 		printf("%s %s: %d\n", phraseTop10[i].word1->word, phraseTop10[i].word2->word, phraseTop10[i].time);
-	}*/
-	
+	}
+	getchar();*/
 	return 0;
 }
