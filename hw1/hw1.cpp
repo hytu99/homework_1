@@ -6,7 +6,7 @@
 #include<string>
 using namespace std;
 
-#define WORD_MAX_LENGTH 250
+#define WORD_MAX_LENGTH 1024
 #define isLetter(c) (((c) >= 'a' && (c) <= 'z') || ((c) >= 'A' && (c) <= 'Z'))
 #define isNumber(c) ((c) >= '0' && (c) <= '9')
 #define HASHMOD 22248619
@@ -14,6 +14,7 @@ using namespace std;
 int characterNum = 0;
 int wordNum = 0;
 int lineNum = 0;
+
 typedef struct wordNode 
 {
 	char word[WORD_MAX_LENGTH];
@@ -159,7 +160,6 @@ void CountFrequency_Phrase(wordList word1, wordList word2)
 		pNode->word2 = word2;
 		headList_Phrase[h] = pNode;
 		headList_Phrase[h]->next = NULL;
-
 	}
 	else
 	{
@@ -208,7 +208,6 @@ void CountQuantity(const char* fileName)
 		{
 			lineNum++;
 		}
-
 		if (isLetter(ch) || isNumber(ch))
 		{
 			i = 0;
@@ -220,7 +219,7 @@ void CountQuantity(const char* fileName)
 			}
 			tempWord[i] = '\0';
 
-			if (i >= 4 && isLetter(tempWord[0]) && isLetter(tempWord[1]) && isLetter(tempWord[2]) && isLetter(tempWord[3]))
+			if (i >= 4 && i <= 1024  && isLetter(tempWord[0]) && isLetter(tempWord[1]) && isLetter(tempWord[2]) && isLetter(tempWord[3]))
 			{
 				// it's a word
 				wordNum++;
@@ -235,7 +234,6 @@ void CountQuantity(const char* fileName)
 				wNodePre = wNode;
 				flag = 1;
 			}
-
 			if (ch >= 32 && ch <= 126)
 				characterNum++;
 			if (ch == '\n')
@@ -250,16 +248,13 @@ void CountQuantity(const char* fileName)
 	}
 
 	fclose(fp);
-
 	lineNum++;
-
 	return;
 }
 
-void TraverseFolder(string folderPath) 
+void TraverseFolder(string folderPath)
 {
 	//Traverse a folder using Depth First Search Traversal
-
 	if (folderPath.empty())
 	{
 		printf("The folder path is empty!\n");
@@ -269,21 +264,23 @@ void TraverseFolder(string folderPath)
 	_finddata_t fileInfo;
 	string filePath;
 	filePath = folderPath + "\\*";
+
 	long Handle = _findfirst(filePath.c_str(), &fileInfo);
-	
-	if (Handle == -1L) 
+
+	if (Handle == -1L)
 	{
 		printf("cannot match the folder path %s\n", filePath.c_str());
+		//printf("cannot match the folder path %s\n", filePath);
 		return;
 	}
-	do 
+	do
 	{
 		//Judge if there are subdirectories
-		if (fileInfo.attrib & _A_SUBDIR) 
+		if (fileInfo.attrib & _A_SUBDIR)
 		{
 			//Exclude two cases
-			if ((strcmp(fileInfo.name, ".") != 0) && (strcmp(fileInfo.name, "..") != 0)) 
-			{	
+			if ((strcmp(fileInfo.name, ".") != 0) && (strcmp(fileInfo.name, "..") != 0))
+			{
 				//Traverse subdirectories
 				string newPath;
 				newPath = folderPath + "\\" + fileInfo.name;
@@ -329,7 +326,6 @@ void Top10WordPhrase()
 			}
 		}
 	}
-
 	for (i = 0; i < HASHMOD; i++)
 	{
 		//find top 10 phrases
@@ -361,8 +357,15 @@ int main(int argc, char *argv[])
 {
 	int i;
 	_finddata_t fileInfo;
-	long Handle = _findfirst(argv[1], &fileInfo);
 	FILE *fout;
+
+	if (argc != 2)
+	{
+		printf("one folderpath required!\n");
+		exit(1);
+	}
+
+	long Handle = _findfirst(argv[1], &fileInfo);
 
 	if (Handle != -1L && (fileInfo.attrib & _A_SUBDIR) == 0)
 	{
@@ -375,7 +378,7 @@ int main(int argc, char *argv[])
 		TraverseFolder(argv[1]);
 	}
 
-	//char s[] = "D:\\test\\测试集与参考结果\\测试集与参考结果\\newsample";
+	//char s[] = "D:\\test\\111";
 	//CountQuantity(s);
 
 	//TraverseFolder(s);
@@ -386,21 +389,23 @@ int main(int argc, char *argv[])
 		exit(0);
 	}
 
-	fprintf(fout, "characters: %d\n", characterNum);
-	fprintf(fout, "words: %d\n", wordNum);
-	fprintf(fout, "lines: %d\n", lineNum);
+	fprintf(fout, "char_number : %d\n", characterNum);
+	fprintf(fout, "line_number : %d\n", lineNum);
+	fprintf(fout, "word_number : %d\n", wordNum);
+	fprintf(fout, "\n");
 
 	for (i = 0; i <= 9; i++)
 	{
 		fprintf(fout, "%s: %d\n", wordTop10[i].word, wordTop10[i].time);
 	}
+	fprintf(fout, "\n");
 
 	for (i = 0; i <= 9; i++)
 	{
 		fprintf(fout, "%s %s: %d\n", phraseTop10[i].word1->word, phraseTop10[i].word2->word, phraseTop10[i].time);
 	}
-	
-	/*printf("characters: %d\n", characterNum);
+	/*
+	printf("characters: %d\n", characterNum);
 	printf("words: %d\n", wordNum);
 	printf("lines: %d\n", lineNum);
 	

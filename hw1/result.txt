@@ -1,6 +1,7 @@
-characters: 173654585
-words: 16630275
-lines: 2278522
+char_number : 173654585
+line_number : 2278522
+word_number : 16630275
+
 THAT: 259186
 SAID: 208861
 CLASS: 192004
@@ -11,6 +12,7 @@ THEY: 145945
 Span: 116118
 HAVE: 107383
 FROM: 105494
+
 Span CLASS: 62861
 THAT GOOD: 61427
 Span Span: 41286
